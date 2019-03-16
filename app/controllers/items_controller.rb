@@ -1,4 +1,5 @@
 class ItemsController < ApplicationController
+  before_action :user_login?, only: [:new, :create, :edit, :destroy, :pay]
 
   def index
     @items = Item.all
@@ -55,9 +56,22 @@ class ItemsController < ApplicationController
     redirect_to controller: "users", action: "mypage"
   end
 
+  def update
+    item = Item.find(params[:id])
+    # item.update if item.current_user.id == current_user.idに変更
+    item.update(item_params)
+    redirect_to controller: "users", action: "mypage"
+  end
+
   private
   def item_params
     params.require(:item).permit(:name, :description, :delivery_fee, :area, :price, :condition, :delivery_method, :standard_shipping_time, :brand, :seller_id, :size_id, :category_id, image_attributes:[:id, :image, :item_id, :user_id])
+  end
+
+  def user_login?
+    unless current_user.present?
+      redirect_to users_path
+    end
   end
 
 end
